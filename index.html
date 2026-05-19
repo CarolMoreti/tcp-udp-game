@@ -220,39 +220,60 @@ body{
     @media (max-width: 768px){
 
     .dialogue{
-        width:95%;
+        width:88%;
+        max-width:340px;
+
+        left:50%;
+        transform:translateX(-50%);
+
         bottom:70px;
-        padding:18px;
-        border-radius:20px;
+
+        padding:16px;
+
+        border-radius:22px;
+
+        max-height:72vh;
+
+        overflow-y:auto;
     }
 
     .character{
-        font-size:22px;
+        font-size:20px;
+        margin-bottom:10px;
     }
 
     .text{
-        font-size:15px;
+        font-size:14px;
         line-height:1.5;
-        max-height:180px;
-        overflow-y:auto;
-        padding-right:5px;
+        margin-bottom:10px;
     }
 
     .question{
         font-size:18px;
-        margin-top:18px;
+        margin-top:14px;
+        line-height:1.4;
+    }
+
+    .options{
+        gap:12px;
+        margin-top:16px;
     }
 
     .option{
         font-size:15px;
-        padding:12px;
+        padding:14px;
         border-radius:14px;
     }
 
     .arrow{
-        width:55px;
-        height:55px;
-        font-size:28px;
+        width:52px;
+        height:52px;
+        font-size:24px;
+
+        top:auto;
+        bottom:310px;
+
+        z-index:40;
     }
 
     .left{
@@ -266,21 +287,23 @@ body{
     .phase{
         font-size:16px;
         padding:8px 16px;
-        top:10px;
+        top:16px;
     }
 
     .player{
-        width:65px;
-        height:90px;
-        bottom:50px;
+        width:58px;
+        height:82px;
+
+        left:20px;
+        bottom:48px;
     }
 
     .floor{
-        height:50px;
+        height:48px;
     }
 
     .result h1{
-        font-size:32px;
+        font-size:30px;
     }
 
     .result p{
@@ -288,18 +311,20 @@ body{
     }
 
     .errors{
-        width:95%;
+        width:92%;
         font-size:14px;
-        max-height:300px;
+        max-height:260px;
         overflow-y:auto;
     }
 
     .restart{
         font-size:18px;
-        padding:14px 22px;
+        padding:12px 20px;
     }
 
     }
+
+
 
 </style>
 </head>
