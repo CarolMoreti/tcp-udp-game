@@ -1,3 +1,4 @@
+:url('https://i.imgur.com/Ly6r3VB.png');
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -19,7 +20,6 @@ body{
     background:#000;
 }
 
-/* FUNDO PIXEL ART */
 .game{
     width:100vw;
     height:100vh;
@@ -30,27 +30,26 @@ body{
     overflow:hidden;
 }
 
-/* ESCURECER */
 .overlay{
     position:absolute;
     inset:0;
     background:rgba(0,0,0,0.2);
 }
 
-/* PERSONAGEM */
 .player{
     position:absolute;
     bottom:60px;
     left:80px;
     width:90px;
     height:120px;
-    background:url('https://i.imgur.com/Ly6r3VB.png');
-    background-size:cover;
+    background::url('https://i.imgur.com/Ly6r3VB.png');
+    border-radius:15px;
+    border:4px solid #ffffff;
     image-rendering:pixelated;
     transition:0.1s linear;
+    z-index:5;
 }
 
-/* CHÃO */
 .floor{
     position:absolute;
     bottom:0;
@@ -60,7 +59,6 @@ body{
     border-top:4px solid #4ee38f;
 }
 
-/* SETAS */
 .arrow{
     position:absolute;
     top:50%;
@@ -92,36 +90,37 @@ body{
     right:20px;
 }
 
-/* CAIXA DIALOGO */
 .dialogue{
     position:absolute;
     left:50%;
     transform:translateX(-50%);
     bottom:80px;
     width:80%;
-    max-width:900px;
-    background:rgba(13,22,18,0.92);
+    max-width:950px;
+    background:rgba(13,22,18,0.94);
     border:4px solid #5cffaa;
     border-radius:25px;
     padding:25px;
     color:white;
     box-shadow:0 0 20px rgba(92,255,170,0.4);
+    z-index:10;
 }
 
 .character{
-    font-size:26px;
+    font-size:28px;
     color:#91ffcb;
-    margin-bottom:10px;
+    margin-bottom:15px;
 }
 
 .text{
     font-size:20px;
-    line-height:1.5;
+    line-height:1.7;
 }
 
 .question{
-    margin-top:20px;
+    margin-top:25px;
     font-size:24px;
+    color:#b7ffe0;
 }
 
 .options{
@@ -153,11 +152,10 @@ body{
     background:#d95353 !important;
 }
 
-/* RESULTADO */
 .result{
     position:absolute;
     inset:0;
-    background:rgba(0,0,0,0.8);
+    background:rgba(0,0,0,0.88);
     display:none;
     justify-content:center;
     align-items:center;
@@ -214,6 +212,7 @@ body{
     color:#91ffcb;
     font-size:22px;
     border:2px solid #5cffaa;
+    z-index:20;
 }
 
 </style>
@@ -245,13 +244,9 @@ Fase 1 / 7
 Lyria 🌿
 </div>
 
-<div class="text" id="story">
-O TCP garante que todas as mensagens mágicas cheguem corretamente.
-</div>
+<div class="text" id="story"></div>
 
-<div class="question" id="question">
-Qual é a principal característica do TCP?
-</div>
+<div class="question" id="question"></div>
 
 <div class="options" id="options"></div>
 
@@ -277,11 +272,11 @@ Jogar Novamente 🌿
 
 <script>
 
-const phases = [
+const allQuestions = [
 
 {
 character:"Lyria 🌿",
-story:"O TCP é um guardião mágico que protege todas as mensagens enviadas pela floresta.",
+story:"Olá, aventureira da floresta encantada! 🌱 Hoje vou te ensinar sobre o TCP. Imagine que você quer enviar uma carta muito importante para alguém do outro lado da floresta. Você gostaria que ela chegasse inteira, sem perder pedaços e na ordem correta, certo? É exatamente isso que o TCP faz na internet! Ele garante que os dados cheguem completos e organizados. Se alguma parte se perder no caminho, ele pede para enviar novamente.",
 question:"Qual é a principal característica do TCP?",
 options:[
 "Comunicação sem conexão",
@@ -295,13 +290,13 @@ explanation:"TCP garante entrega confiável e organizada."
 
 {
 character:"Finn 🍄",
-story:"O UDP corre veloz pela floresta sem esperar confirmações.",
+story:"O UDP é um mensageiro muito veloz 🍃 Ele entrega mensagens rapidamente sem verificar se tudo chegou perfeitamente. Isso faz ele ser ótimo para jogos e chamadas ao vivo.",
 question:"O UDP é geralmente utilizado quando:",
 options:[
 "A confiabilidade é mais importante",
 "É necessário controlar congestionamento",
 "A velocidade é mais importante",
-"É obrigatório handshake"
+"É obrigatório o handshake"
 ],
 answer:2,
 explanation:"UDP prioriza velocidade."
@@ -309,8 +304,8 @@ explanation:"UDP prioriza velocidade."
 
 {
 character:"Nixie ✨",
-story:"Antes do TCP conversar, ele faz um ritual mágico de conexão.",
-question:"Como se chama esse ritual?",
+story:"Antes do TCP começar a enviar dados, ele faz um ritual mágico chamado handshake ✨ Esse processo garante que os dois lados estão prontos para conversar.",
+question:"O processo de estabelecimento de conexão no TCP é conhecido como:",
 options:[
 "Two-way handshake",
 "Slow start",
@@ -323,61 +318,113 @@ explanation:"TCP utiliza Three-way Handshake."
 
 {
 character:"Kael 🌙",
-story:"Algumas aplicações preferem velocidade acima da perfeição.",
-question:"Onde o UDP é mais recomendado?",
+story:"Na floresta das redes, alguns protocolos criam uma conexão segura antes de conversar 🌲 Isso significa que os dispositivos se organizam antes da transmissão.",
+question:"Qual dos protocolos abaixo é orientado à conexão?",
 options:[
-"Transferência de arquivos",
-"Transações bancárias",
-"Voz e vídeo",
-"Backup crítico"
+"UDP",
+"TCP",
+"Ethernet",
+"ARP"
 ],
-answer:2,
-explanation:"Streaming usa UDP."
+answer:1,
+explanation:"TCP é orientado à conexão."
 },
 
 {
 character:"Lumina 🧚",
-story:"Os ACKs avisam quando um pacote chegou corretamente.",
-question:"No TCP, o ACK confirma:",
+story:"Aplicações de vídeo e voz precisam de velocidade 🎥 Mesmo que alguns pacotes se percam, o importante é não travar.",
+question:"Em qual situação o UDP é mais recomendado?",
 options:[
-"Pacote incompleto",
-"Pacote correto",
-"Porta fechada",
-"IP incorreto"
+"Transferência de arquivos",
+"Transações bancárias",
+"Aplicações de voz e vídeo",
+"Download de backup crítico"
 ],
-answer:1,
-explanation:"ACK confirma recebimento."
+answer:2,
+explanation:"UDP é ideal para streaming."
 },
 
 {
 character:"Eldrin 🌲",
-story:"Os números de sequência mantêm a ordem dos pacotes mágicos.",
-question:"TCP usa números de sequência para:",
+story:"O TCP possui muitos mecanismos de controle mágicos ✨ Isso faz seu cabeçalho ser maior que o do UDP.",
+question:"O cabeçalho TCP possui:",
 options:[
-"Identificar portas",
-"Sincronizar relógios",
-"Reordenar pacotes",
-"Eliminar congestionamento"
+"Menos campos que o UDP",
+"Mais campos que o UDP",
+"O mesmo número de campos",
+"Nenhum campo de controle"
 ],
-answer:2,
-explanation:"Sequência organiza os dados."
+answer:1,
+explanation:"TCP possui mais informações no cabeçalho."
 },
 
 {
 character:"Thorn 🍃",
-story:"A floresta precisa equilibrar velocidade e confiabilidade.",
-question:"UDP permite:",
+story:"Os pacotes precisam chegar organizados 📦 O TCP usa números especiais para reorganizar tudo corretamente.",
+question:"O campo usado para garantir entrega ordenada no TCP é:",
 options:[
-"Handshake",
-"Retransmissão automática",
-"Baixa sobrecarga",
-"Controle de janela"
+"Porta de origem",
+"Número de sequência",
+"Porta de destino",
+"Checksum"
+],
+answer:1,
+explanation:"Números de sequência organizam os pacotes."
+},
+
+{
+character:"Lyria 🌿",
+story:"UDP é rápido porque não verifica tudo 🌪️ Ele simplesmente envia os dados sem garantir entrega.",
+question:"O UDP é considerado um protocolo:",
+options:[
+"Confiável",
+"Orientado à conexão",
+"Simples e sem garantia de entrega",
+"Baseado em janelas"
 ],
 answer:2,
-explanation:"UDP é leve e rápido."
+explanation:"UDP não garante entrega."
+},
+
+{
+character:"Finn 🍄",
+story:"TCP e UDP vivem em uma camada específica do modelo OSI 🌐 Essa camada é responsável pela comunicação entre aplicações.",
+question:"Qual camada do modelo OSI contém TCP e o UDP?",
+options:[
+"Rede",
+"Transporte",
+"Aplicação",
+"Sessão"
+],
+answer:1,
+explanation:"Eles pertencem à camada de transporte."
+},
+
+{
+character:"Nixie ✨",
+story:"Quando muitas mensagens atravessam a floresta, pode haver congestionamento 🚦 O TCP possui mecanismos mágicos para evitar isso.",
+question:"Qual desses protocolos utiliza controle de congestionamento?",
+options:[
+"UDP",
+"FTP",
+"TCP",
+"TFTP"
+],
+answer:2,
+explanation:"TCP controla congestionamento."
 }
 
 ];
+
+function shuffle(array){
+    return array.sort(()=>Math.random()-0.5);
+}
+
+let phases = [];
+
+function generateRound(){
+    phases = shuffle([...allQuestions]).slice(0,7);
+}
 
 let current = 0;
 let score = 0;
@@ -541,6 +588,8 @@ function restartGame(){
     score = 0;
     errors = [];
 
+    generateRound();
+
     document.getElementById("result")
     .style.display="none";
 
@@ -548,9 +597,13 @@ function restartGame(){
 
 }
 
+generateRound();
 loadScene();
 
 </script>
 
 </body>
 </html>
+```
+
+Depois é só adicionar as outras perguntas no array `allQuestions` seguindo o mesmo modelo das primeiras.
