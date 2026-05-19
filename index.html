@@ -1,111 +1,143 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Floresta Encantada TCP & UDP</title>
 
 <style>
+
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:'Trebuchet MS', sans-serif;
 }
 
 body{
-    min-height:100vh;
-    background: linear-gradient(#1d3b2f,#0f241c);
     overflow:hidden;
-    color:white;
+    font-family:Arial, sans-serif;
+    background:#000;
 }
 
-.stars{
-    position:fixed;
-    width:100%;
-    height:100%;
-    pointer-events:none;
-    background-image:
-        radial-gradient(white 1px, transparent 1px),
-        radial-gradient(#c4ffd6 1px, transparent 1px);
-    background-size:80px 80px;
-    opacity:0.3;
-}
-
-.container{
-    width:90%;
-    max-width:900px;
-    margin:40px auto;
-    background:rgba(22,40,30,0.9);
-    border:3px solid #84ffb5;
-    border-radius:30px;
-    padding:30px;
-    box-shadow:0 0 30px rgba(132,255,181,0.4);
+/* FUNDO PIXEL ART */
+.game{
+    width:100vw;
+    height:100vh;
     position:relative;
-    z-index:2;
+    background:url('360_F_599720625_N2U8AQzhS5y7llrp2AMAQmKL4B6nWHKT.jpg');
+    background-size:cover;
+    background-position:center;
+    overflow:hidden;
 }
 
-h1{
-    text-align:center;
-    margin-bottom:20px;
-    color:#c4ffd6;
-    text-shadow:0 0 10px #84ffb5;
+/* ESCURECER */
+.overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,0.2);
 }
 
-.story-box{
-    background:rgba(255,255,255,0.08);
-    border-radius:20px;
-    padding:20px;
-    margin-bottom:25px;
-    animation:fade 0.5s;
+/* PERSONAGEM */
+.player{
+    position:absolute;
+    bottom:60px;
+    left:80px;
+    width:90px;
+    height:120px;
+    background:url('https://i.imgur.com/Ly6r3VB.png');
+    background-size:cover;
+    image-rendering:pixelated;
+    transition:0.1s linear;
+}
+
+/* CHÃO */
+.floor{
+    position:absolute;
+    bottom:0;
+    width:100%;
+    height:60px;
+    background:#143d2f;
+    border-top:4px solid #4ee38f;
+}
+
+/* SETAS */
+.arrow{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    width:70px;
+    height:70px;
+    border-radius:50%;
+    border:none;
+    cursor:pointer;
+    font-size:35px;
+    background:rgba(255,255,255,0.2);
+    color:white;
+    backdrop-filter:blur(5px);
+    transition:0.3s;
+    z-index:50;
+}
+
+.arrow:hover{
+    transform:translateY(-50%) scale(1.1);
+    background:#4ee38f;
+    color:#123;
+}
+
+.left{
+    left:20px;
+}
+
+.right{
+    right:20px;
+}
+
+/* CAIXA DIALOGO */
+.dialogue{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:80px;
+    width:80%;
+    max-width:900px;
+    background:rgba(13,22,18,0.92);
+    border:4px solid #5cffaa;
+    border-radius:25px;
+    padding:25px;
+    color:white;
+    box-shadow:0 0 20px rgba(92,255,170,0.4);
 }
 
 .character{
-    display:flex;
-    align-items:center;
-    gap:15px;
+    font-size:26px;
+    color:#91ffcb;
+    margin-bottom:10px;
 }
 
-.avatar{
-    width:80px;
-    height:80px;
-    border-radius:50%;
-    background:linear-gradient(#84ffb5,#4ccf88);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    font-size:40px;
-    box-shadow:0 0 15px #84ffb5;
-}
-
-.character-name{
-    font-size:22px;
-    color:#c4ffd6;
-    margin-bottom:5px;
-}
-
-.question-box{
-    margin-top:20px;
-    animation:fade 0.5s;
+.text{
+    font-size:20px;
+    line-height:1.5;
 }
 
 .question{
-    font-size:22px;
-    margin-bottom:20px;
+    margin-top:20px;
+    font-size:24px;
 }
 
 .options{
+    margin-top:20px;
     display:grid;
     gap:15px;
 }
 
 .option{
-    background:#244635;
+    background:#204533;
     border:2px solid transparent;
     padding:15px;
     border-radius:18px;
     cursor:pointer;
     transition:0.3s;
+    font-size:18px;
 }
 
 .option:hover{
@@ -114,125 +146,142 @@ h1{
 }
 
 .correct{
-    background:#3cb371 !important;
-    border-color:#b6ffd2;
+    background:#3abf75 !important;
 }
 
 .wrong{
-    background:#c94f4f !important;
+    background:#d95353 !important;
 }
 
-.next-btn, .restart-btn{
-    margin-top:25px;
-    padding:14px 28px;
-    border:none;
-    border-radius:20px;
-    background:#84ffb5;
-    color:#123;
-    font-size:18px;
-    cursor:pointer;
-    font-weight:bold;
-    transition:0.3s;
-}
-
-.next-btn:hover,
-.restart-btn:hover{
-    transform:scale(1.05);
-}
-
-.hidden{
+/* RESULTADO */
+.result{
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,0.8);
     display:none;
-}
-
-.result-box{
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    color:white;
+    z-index:100;
+    padding:30px;
     text-align:center;
 }
 
-.result-box h2{
-    font-size:35px;
+.result h1{
+    font-size:50px;
     margin-bottom:20px;
-    color:#c4ffd6;
+    color:#91ffcb;
 }
 
-.error-list{
+.result p{
+    font-size:24px;
+    margin-bottom:20px;
+}
+
+.restart{
+    padding:16px 30px;
+    border:none;
+    border-radius:20px;
+    font-size:22px;
+    cursor:pointer;
+    background:#5cffaa;
+    color:#123;
+    transition:0.3s;
+}
+
+.restart:hover{
+    transform:scale(1.1);
+}
+
+.errors{
     margin-top:20px;
+    max-width:800px;
     text-align:left;
-    background:rgba(255,255,255,0.08);
+    background:#183026;
     padding:20px;
     border-radius:20px;
 }
 
-.progress{
-    margin-bottom:20px;
-    color:#b6ffd2;
+.phase{
+    position:absolute;
+    top:20px;
+    left:50%;
+    transform:translateX(-50%);
+    background:rgba(0,0,0,0.4);
+    padding:12px 25px;
+    border-radius:20px;
+    color:#91ffcb;
+    font-size:22px;
+    border:2px solid #5cffaa;
 }
 
-@keyframes fade{
-    from{
-        opacity:0;
-        transform:translateY(10px);
-    }
-    to{
-        opacity:1;
-        transform:translateY(0);
-    }
-}
 </style>
 </head>
+
 <body>
 
-<div class="stars"></div>
+<div class="game">
 
-<div class="container">
+<div class="overlay"></div>
 
-<h1>🌿 Floresta Encantada TCP & UDP 🌿</h1>
-
-<div id="game">
-
-<div class="progress" id="progress"></div>
-
-<div class="story-box">
-    <div class="character">
-        <div class="avatar" id="avatar">🧚</div>
-
-        <div>
-            <div class="character-name" id="characterName"></div>
-            <div id="storyText"></div>
-        </div>
-    </div>
+<div class="phase" id="phase">
+Fase 1 / 7
 </div>
 
-<div class="question-box">
-    <div class="question" id="question"></div>
+<div class="player" id="player"></div>
 
-    <div class="options" id="options"></div>
+<button class="arrow left" onclick="prevScene()">
+⬅
+</button>
 
-    <button class="next-btn hidden" id="nextBtn">
-        Próxima Missão ✨
-    </button>
+<button class="arrow right" onclick="nextScene()">
+➡
+</button>
+
+<div class="dialogue">
+
+<div class="character" id="character">
+Lyria 🌿
 </div>
 
+<div class="text" id="story">
+O TCP garante que todas as mensagens mágicas cheguem corretamente.
 </div>
 
-<div class="result-box hidden" id="resultBox">
-    <h2>🌟 Jornada Finalizada 🌟</h2>
+<div class="question" id="question">
+Qual é a principal característica do TCP?
+</div>
 
-    <p id="scoreText"></p>
+<div class="options" id="options"></div>
 
-    <div class="error-list" id="errorList"></div>
+</div>
 
-    <button class="restart-btn" onclick="restartGame()">
-        Jogar Novamente 🌿
-    </button>
+<div class="floor"></div>
+
+<div class="result" id="result">
+
+<h1>✨ Jornada Finalizada ✨</h1>
+
+<p id="score"></p>
+
+<div class="errors" id="errors"></div>
+
+<button class="restart" onclick="restartGame()">
+Jogar Novamente 🌿
+</button>
+
 </div>
 
 </div>
 
 <script>
 
-const allQuestions = [
+const phases = [
 
 {
+character:"Lyria 🌿",
+story:"O TCP é um guardião mágico que protege todas as mensagens enviadas pela floresta.",
 question:"Qual é a principal característica do TCP?",
 options:[
 "Comunicação sem conexão",
@@ -241,23 +290,27 @@ options:[
 "Difusão de pacotes"
 ],
 answer:1,
-explanation:"O TCP garante entrega confiável e na ordem correta."
+explanation:"TCP garante entrega confiável e organizada."
 },
 
 {
+character:"Finn 🍄",
+story:"O UDP corre veloz pela floresta sem esperar confirmações.",
 question:"O UDP é geralmente utilizado quando:",
 options:[
 "A confiabilidade é mais importante",
 "É necessário controlar congestionamento",
 "A velocidade é mais importante",
-"É obrigatório o handshake"
+"É obrigatório handshake"
 ],
 answer:2,
-explanation:"UDP prioriza velocidade e baixa latência."
+explanation:"UDP prioriza velocidade."
 },
 
 {
-question:"O processo de conexão do TCP é chamado:",
+character:"Nixie ✨",
+story:"Antes do TCP conversar, ele faz um ritual mágico de conexão.",
+question:"Como se chama esse ritual?",
 options:[
 "Two-way handshake",
 "Slow start",
@@ -265,107 +318,41 @@ options:[
 "Fast open"
 ],
 answer:2,
-explanation:"TCP usa o famoso Three-way Handshake."
+explanation:"TCP utiliza Three-way Handshake."
 },
 
 {
-question:"Qual protocolo é orientado à conexão?",
-options:[
-"UDP",
-"TCP",
-"ARP",
-"Ethernet"
-],
-answer:1,
-explanation:"TCP cria conexão antes da transmissão."
-},
-
-{
-question:"Em qual situação o UDP é mais recomendado?",
+character:"Kael 🌙",
+story:"Algumas aplicações preferem velocidade acima da perfeição.",
+question:"Onde o UDP é mais recomendado?",
 options:[
 "Transferência de arquivos",
 "Transações bancárias",
-"Aplicações de voz e vídeo",
+"Voz e vídeo",
 "Backup crítico"
 ],
 answer:2,
-explanation:"UDP é ótimo para streaming e chamadas."
+explanation:"Streaming usa UDP."
 },
 
 {
-question:"O UDP é considerado um protocolo:",
-options:[
-"Confiável",
-"Orientado à conexão",
-"Sem garantia de entrega",
-"Baseado em janelas"
-],
-answer:2,
-explanation:"UDP não garante entrega nem ordem."
-},
-
-{
-question:"Qual camada contém TCP e UDP?",
-options:[
-"Rede",
-"Aplicação",
-"Transporte",
-"Sessão"
-],
-answer:2,
-explanation:"TCP e UDP pertencem à camada de transporte."
-},
-
-{
-question:"Qual protocolo utiliza controle de congestionamento?",
-options:[
-"UDP",
-"FTP",
-"TCP",
-"TFTP"
-],
-answer:2,
-explanation:"TCP possui mecanismos de controle."
-},
-
-{
-question:"O ACK no TCP confirma:",
+character:"Lumina 🧚",
+story:"Os ACKs avisam quando um pacote chegou corretamente.",
+question:"No TCP, o ACK confirma:",
 options:[
 "Pacote incompleto",
-"Pacote recebido corretamente",
+"Pacote correto",
 "Porta fechada",
 "IP incorreto"
 ],
 answer:1,
-explanation:"ACK serve para confirmar recebimento."
+explanation:"ACK confirma recebimento."
 },
 
 {
-question:"UDP é muito usado em:",
-options:[
-"SSH",
-"VoIP",
-"HTTPS",
-"FTP"
-],
-answer:1,
-explanation:"VoIP precisa de baixa latência."
-},
-
-{
-question:"No TCP, FIN significa:",
-options:[
-"Retransmissão",
-"Início da conexão",
-"Encerramento da conexão",
-"Reset"
-],
-answer:2,
-explanation:"FIN encerra uma conexão TCP."
-},
-
-{
-question:"O TCP usa números de sequência para:",
+character:"Eldrin 🌲",
+story:"Os números de sequência mantêm a ordem dos pacotes mágicos.",
+question:"TCP usa números de sequência para:",
 options:[
 "Identificar portas",
 "Sincronizar relógios",
@@ -373,22 +360,12 @@ options:[
 "Eliminar congestionamento"
 ],
 answer:2,
-explanation:"Sequência garante ordem correta."
+explanation:"Sequência organiza os dados."
 },
 
 {
-question:"A porta 443 utiliza:",
-options:[
-"TCP",
-"UDP",
-"Ambos",
-"ICMP"
-],
-answer:0,
-explanation:"HTTPS funciona sobre TCP."
-},
-
-{
+character:"Thorn 🍃",
+story:"A floresta precisa equilibrar velocidade e confiabilidade.",
 question:"UDP permite:",
 options:[
 "Handshake",
@@ -398,216 +375,180 @@ options:[
 ],
 answer:2,
 explanation:"UDP é leve e rápido."
-},
-
-{
-question:"DNS usa UDP porque:",
-options:[
-"É mais lento",
-"Garante ordem",
-"Retransmite automático",
-"É mais rápido"
-],
-answer:3,
-explanation:"Consultas DNS precisam ser rápidas."
 }
 
 ];
 
-const characters = [
-{
-name:"Lyria 🌸",
-avatar:"🧚",
-text:"Bem-vinda aventureira! O TCP é um protocolo mágico que garante que todas as mensagens cheguem em segurança."
-},
-
-{
-name:"Finn 🌿",
-avatar:"🧝",
-text:"UDP é veloz como o vento da floresta, mas às vezes algumas mensagens se perdem pelo caminho."
-},
-
-{
-name:"Eldrin 🍃",
-avatar:"🧙",
-text:"O Three-way Handshake é um ritual de conexão entre dispositivos."
-},
-
-{
-name:"Nixie ✨",
-avatar:"🦋",
-text:"Algumas aplicações preferem velocidade em vez de perfeição."
-},
-
-{
-name:"Kael 🌙",
-avatar:"🧝‍♂️",
-text:"Os números de sequência ajudam a organizar os pacotes mágicos."
-},
-
-{
-name:"Lumina 🍄",
-avatar:"🧚‍♀️",
-text:"Os ACKs são confirmações enviadas pelos guardiões da rede."
-},
-
-{
-name:"Thorn 🌲",
-avatar:"🧙‍♂️",
-text:"A floresta das redes depende do equilíbrio entre rapidez e confiabilidade."
-}
-];
-
-let selectedQuestions = [];
-let currentQuestion = 0;
+let current = 0;
 let score = 0;
 let errors = [];
 
-function shuffle(array){
-    return array.sort(()=>Math.random()-0.5);
-}
+const player = document.getElementById("player");
 
-function startGame(){
+let playerX = 80;
 
-    selectedQuestions = shuffle([...allQuestions]).slice(0,7);
+document.addEventListener("keydown",(e)=>{
 
-    currentQuestion = 0;
-    score = 0;
-    errors = [];
+    if(e.key==="ArrowRight"){
+        playerX += 20;
+    }
 
-    document.getElementById("game").classList.remove("hidden");
-    document.getElementById("resultBox").classList.add("hidden");
+    if(e.key==="ArrowLeft"){
+        playerX -= 20;
+    }
 
-    loadQuestion();
-}
+    player.style.left = playerX + "px";
 
-function loadQuestion(){
+});
 
-    const q = selectedQuestions[currentQuestion];
-    const character = characters[currentQuestion];
+function loadScene(){
 
-    document.getElementById("progress").innerText =
-        `Missão ${currentQuestion+1} de 7`;
+    const phase = phases[current];
 
-    document.getElementById("characterName").innerText =
-        character.name;
+    document.getElementById("phase").innerText =
+    `Fase ${current+1} / 7`;
 
-    document.getElementById("avatar").innerText =
-        character.avatar;
+    document.getElementById("character").innerText =
+    phase.character;
 
-    document.getElementById("storyText").innerText =
-        character.text;
+    document.getElementById("story").innerText =
+    phase.story;
 
     document.getElementById("question").innerText =
-        q.question;
+    phase.question;
 
-    const optionsDiv = document.getElementById("options");
+    const optionsDiv =
+    document.getElementById("options");
+
     optionsDiv.innerHTML = "";
 
-    q.options.forEach((option,index)=>{
+    phase.options.forEach((option,index)=>{
 
-        const btn = document.createElement("div");
+        const div = document.createElement("div");
 
-        btn.classList.add("option");
+        div.classList.add("option");
 
-        btn.innerText = option;
+        div.innerText = option;
 
-        btn.onclick = ()=>selectAnswer(btn,index);
+        div.onclick = ()=>selectAnswer(div,index);
 
-        optionsDiv.appendChild(btn);
+        optionsDiv.appendChild(div);
 
     });
 
-    document.getElementById("nextBtn")
-        .classList.add("hidden");
 }
 
 function selectAnswer(element,index){
 
-    const q = selectedQuestions[currentQuestion];
+    const phase = phases[current];
 
-    const options = document.querySelectorAll(".option");
+    const options =
+    document.querySelectorAll(".option");
 
-    options.forEach(opt=>opt.style.pointerEvents="none");
+    options.forEach(opt=>{
+        opt.style.pointerEvents="none";
+    });
 
-    if(index === q.answer){
+    if(index===phase.answer){
 
         element.classList.add("correct");
+
         score++;
 
     }else{
 
         element.classList.add("wrong");
-        options[q.answer].classList.add("correct");
+
+        options[phase.answer]
+        .classList.add("correct");
 
         errors.push({
-            question:q.question,
-            explanation:q.explanation
+            question:phase.question,
+            explanation:phase.explanation
         });
+
     }
 
-    document.getElementById("nextBtn")
-        .classList.remove("hidden");
 }
 
-document.getElementById("nextBtn")
-.addEventListener("click",()=>{
+function nextScene(){
 
-    currentQuestion++;
+    current++;
 
-    if(currentQuestion < 7){
+    if(current >= phases.length){
 
-        loadQuestion();
-
-    }else{
-
-        showResults();
+        finishGame();
+        return;
     }
 
-});
+    loadScene();
 
-function showResults(){
+}
 
-    document.getElementById("game")
-        .classList.add("hidden");
+function prevScene(){
 
-    document.getElementById("resultBox")
-        .classList.remove("hidden");
+    if(current>0){
 
-    document.getElementById("scoreText")
-        .innerHTML =
-        `Você acertou <strong>${score}</strong> de 7 missões!`;
+        current--;
 
-    const errorList =
-        document.getElementById("errorList");
+        loadScene();
 
-    if(errors.length === 0){
+    }
 
-        errorList.innerHTML =
-        "🌟 Perfeito! Você dominou a floresta das redes!";
+}
+
+function finishGame(){
+
+    document.getElementById("result")
+    .style.display="flex";
+
+    document.getElementById("score")
+    .innerText =
+    `Você acertou ${score} de 7 questões!`;
+
+    const errorsDiv =
+    document.getElementById("errors");
+
+    if(errors.length===0){
+
+        errorsDiv.innerHTML =
+        "🌟 Você dominou a magia das redes!";
 
     }else{
 
-        errorList.innerHTML =
-        "<h3>✨ Onde você errou:</h3><br>";
+        let html = "<h2>✨ Explicações:</h2><br>";
 
         errors.forEach(err=>{
 
-            errorList.innerHTML += `
-                <p><strong>${err.question}</strong><br>
-                ${err.explanation}</p><br>
+            html += `
+            <p>
+            <strong>${err.question}</strong><br>
+            ${err.explanation}
+            </p><br>
             `;
 
         });
+
+        errorsDiv.innerHTML = html;
+
     }
 
 }
 
 function restartGame(){
-    startGame();
+
+    current = 0;
+    score = 0;
+    errors = [];
+
+    document.getElementById("result")
+    .style.display="none";
+
+    loadScene();
+
 }
 
-startGame();
+loadScene();
 
 </script>
 
