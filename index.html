@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Floresta Encantada TCP & UDP</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Trebuchet MS', sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background: linear-gradient(#1d3b2f,#0f241c);
+    overflow:hidden;
+    color:white;
+}
+
+.stars{
+    position:fixed;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    background-image:
+        radial-gradient(white 1px, transparent 1px),
+        radial-gradient(#c4ffd6 1px, transparent 1px);
+    background-size:80px 80px;
+    opacity:0.3;
+}
+
+.container{
+    width:90%;
+    max-width:900px;
+    margin:40px auto;
+    background:rgba(22,40,30,0.9);
+    border:3px solid #84ffb5;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 0 30px rgba(132,255,181,0.4);
+    position:relative;
+    z-index:2;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:20px;
+    color:#c4ffd6;
+    text-shadow:0 0 10px #84ffb5;
+}
+
+.story-box{
+    background:rgba(255,255,255,0.08);
+    border-radius:20px;
+    padding:20px;
+    margin-bottom:25px;
+    animation:fade 0.5s;
+}
+
+.character{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.avatar{
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    background:linear-gradient(#84ffb5,#4ccf88);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:40px;
+    box-shadow:0 0 15px #84ffb5;
+}
+
+.character-name{
+    font-size:22px;
+    color:#c4ffd6;
+    margin-bottom:5px;
+}
+
+.question-box{
+    margin-top:20px;
+    animation:fade 0.5s;
+}
+
+.question{
+    font-size:22px;
+    margin-bottom:20px;
+}
+
+.options{
+    display:grid;
+    gap:15px;
+}
+
+.option{
+    background:#244635;
+    border:2px solid transparent;
+    padding:15px;
+    border-radius:18px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.option:hover{
+    background:#35684f;
+    transform:scale(1.02);
+}
+
+.correct{
+    background:#3cb371 !important;
+    border-color:#b6ffd2;
+}
+
+.wrong{
+    background:#c94f4f !important;
+}
+
+.next-btn, .restart-btn{
+    margin-top:25px;
+    padding:14px 28px;
+    border:none;
+    border-radius:20px;
+    background:#84ffb5;
+    color:#123;
+    font-size:18px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+.next-btn:hover,
+.restart-btn:hover{
+    transform:scale(1.05);
+}
+
+.hidden{
+    display:none;
+}
+
+.result-box{
+    text-align:center;
+}
+
+.result-box h2{
+    font-size:35px;
+    margin-bottom:20px;
+    color:#c4ffd6;
+}
+
+.error-list{
+    margin-top:20px;
+    text-align:left;
+    background:rgba(255,255,255,0.08);
+    padding:20px;
+    border-radius:20px;
+}
+
+.progress{
+    margin-bottom:20px;
+    color:#b6ffd2;
+}
+
+@keyframes fade{
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<div class="container">
+
+<h1>🌿 Floresta Encantada TCP & UDP 🌿</h1>
+
+<div id="game">
+
+<div class="progress" id="progress"></div>
+
+<div class="story-box">
+    <div class="character">
+        <div class="avatar" id="avatar">🧚</div>
+
+        <div>
+            <div class="character-name" id="characterName"></div>
+            <div id="storyText"></div>
+        </div>
+    </div>
+</div>
+
+<div class="question-box">
+    <div class="question" id="question"></div>
+
+    <div class="options" id="options"></div>
+
+    <button class="next-btn hidden" id="nextBtn">
+        Próxima Missão ✨
+    </button>
+</div>
+
+</div>
+
+<div class="result-box hidden" id="resultBox">
+    <h2>🌟 Jornada Finalizada 🌟</h2>
+
+    <p id="scoreText"></p>
+
+    <div class="error-list" id="errorList"></div>
+
+    <button class="restart-btn" onclick="restartGame()">
+        Jogar Novamente 🌿
+    </button>
+</div>
+
+</div>
+
+<script>
+
+const allQuestions = [
+
+{
+question:"Qual é a principal característica do TCP?",
+options:[
+"Comunicação sem conexão",
+"Entrega garantida e ordenada",
+"Baixa latência",
+"Difusão de pacotes"
+],
+answer:1,
+explanation:"O TCP garante entrega confiável e na ordem correta."
+},
+
+{
+question:"O UDP é geralmente utilizado quando:",
+options:[
+"A confiabilidade é mais importante",
+"É necessário controlar congestionamento",
+"A velocidade é mais importante",
+"É obrigatório o handshake"
+],
+answer:2,
+explanation:"UDP prioriza velocidade e baixa latência."
+},
+
+{
+question:"O processo de conexão do TCP é chamado:",
+options:[
+"Two-way handshake",
+"Slow start",
+"Three-way handshake",
+"Fast open"
+],
+answer:2,
+explanation:"TCP usa o famoso Three-way Handshake."
+},
+
+{
+question:"Qual protocolo é orientado à conexão?",
+options:[
+"UDP",
+"TCP",
+"ARP",
+"Ethernet"
+],
+answer:1,
+explanation:"TCP cria conexão antes da transmissão."
+},
+
+{
+question:"Em qual situação o UDP é mais recomendado?",
+options:[
+"Transferência de arquivos",
+"Transações bancárias",
+"Aplicações de voz e vídeo",
+"Backup crítico"
+],
+answer:2,
+explanation:"UDP é ótimo para streaming e chamadas."
+},
+
+{
+question:"O UDP é considerado um protocolo:",
+options:[
+"Confiável",
+"Orientado à conexão",
+"Sem garantia de entrega",
+"Baseado em janelas"
+],
+answer:2,
+explanation:"UDP não garante entrega nem ordem."
+},
+
+{
+question:"Qual camada contém TCP e UDP?",
+options:[
+"Rede",
+"Aplicação",
+"Transporte",
+"Sessão"
+],
+answer:2,
+explanation:"TCP e UDP pertencem à camada de transporte."
+},
+
+{
+question:"Qual protocolo utiliza controle de congestionamento?",
+options:[
+"UDP",
+"FTP",
+"TCP",
+"TFTP"
+],
+answer:2,
+explanation:"TCP possui mecanismos de controle."
+},
+
+{
+question:"O ACK no TCP confirma:",
+options:[
+"Pacote incompleto",
+"Pacote recebido corretamente",
+"Porta fechada",
+"IP incorreto"
+],
+answer:1,
+explanation:"ACK serve para confirmar recebimento."
+},
+
+{
+question:"UDP é muito usado em:",
+options:[
+"SSH",
+"VoIP",
+"HTTPS",
+"FTP"
+],
+answer:1,
+explanation:"VoIP precisa de baixa latência."
+},
+
+{
+question:"No TCP, FIN significa:",
+options:[
+"Retransmissão",
+"Início da conexão",
+"Encerramento da conexão",
+"Reset"
+],
+answer:2,
+explanation:"FIN encerra uma conexão TCP."
+},
+
+{
+question:"O TCP usa números de sequência para:",
+options:[
+"Identificar portas",
+"Sincronizar relógios",
+"Reordenar pacotes",
+"Eliminar congestionamento"
+],
+answer:2,
+explanation:"Sequência garante ordem correta."
+},
+
+{
+question:"A porta 443 utiliza:",
+options:[
+"TCP",
+"UDP",
+"Ambos",
+"ICMP"
+],
+answer:0,
+explanation:"HTTPS funciona sobre TCP."
+},
+
+{
+question:"UDP permite:",
+options:[
+"Handshake",
+"Retransmissão automática",
+"Baixa sobrecarga",
+"Controle de janela"
+],
+answer:2,
+explanation:"UDP é leve e rápido."
+},
+
+{
+question:"DNS usa UDP porque:",
+options:[
+"É mais lento",
+"Garante ordem",
+"Retransmite automático",
+"É mais rápido"
+],
+answer:3,
+explanation:"Consultas DNS precisam ser rápidas."
+}
+
+];
+
+const characters = [
+{
+name:"Lyria 🌸",
+avatar:"🧚",
+text:"Bem-vinda aventureira! O TCP é um protocolo mágico que garante que todas as mensagens cheguem em segurança."
+},
+
+{
+name:"Finn 🌿",
+avatar:"🧝",
+text:"UDP é veloz como o vento da floresta, mas às vezes algumas mensagens se perdem pelo caminho."
+},
+
+{
+name:"Eldrin 🍃",
+avatar:"🧙",
+text:"O Three-way Handshake é um ritual de conexão entre dispositivos."
+},
+
+{
+name:"Nixie ✨",
+avatar:"🦋",
+text:"Algumas aplicações preferem velocidade em vez de perfeição."
+},
+
+{
+name:"Kael 🌙",
+avatar:"🧝‍♂️",
+text:"Os números de sequência ajudam a organizar os pacotes mágicos."
+},
+
+{
+name:"Lumina 🍄",
+avatar:"🧚‍♀️",
+text:"Os ACKs são confirmações enviadas pelos guardiões da rede."
+},
+
+{
+name:"Thorn 🌲",
+avatar:"🧙‍♂️",
+text:"A floresta das redes depende do equilíbrio entre rapidez e confiabilidade."
+}
+];
+
+let selectedQuestions = [];
+let currentQuestion = 0;
+let score = 0;
+let errors = [];
+
+function shuffle(array){
+    return array.sort(()=>Math.random()-0.5);
+}
+
+function startGame(){
+
+    selectedQuestions = shuffle([...allQuestions]).slice(0,7);
+
+    currentQuestion = 0;
+    score = 0;
+    errors = [];
+
+    document.getElementById("game").classList.remove("hidden");
+    document.getElementById("resultBox").classList.add("hidden");
+
+    loadQuestion();
+}
+
+function loadQuestion(){
+
+    const q = selectedQuestions[currentQuestion];
+    const character = characters[currentQuestion];
+
+    document.getElementById("progress").innerText =
+        `Missão ${currentQuestion+1} de 7`;
+
+    document.getElementById("characterName").innerText =
+        character.name;
+
+    document.getElementById("avatar").innerText =
+        character.avatar;
+
+    document.getElementById("storyText").innerText =
+        character.text;
+
+    document.getElementById("question").innerText =
+        q.question;
+
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
+
+    q.options.forEach((option,index)=>{
+
+        const btn = document.createElement("div");
+
+        btn.classList.add("option");
+
+        btn.innerText = option;
+
+        btn.onclick = ()=>selectAnswer(btn,index);
+
+        optionsDiv.appendChild(btn);
+
+    });
+
+    document.getElementById("nextBtn")
+        .classList.add("hidden");
+}
+
+function selectAnswer(element,index){
+
+    const q = selectedQuestions[currentQuestion];
+
+    const options = document.querySelectorAll(".option");
+
+    options.forEach(opt=>opt.style.pointerEvents="none");
+
+    if(index === q.answer){
+
+        element.classList.add("correct");
+        score++;
+
+    }else{
+
+        element.classList.add("wrong");
+        options[q.answer].classList.add("correct");
+
+        errors.push({
+            question:q.question,
+            explanation:q.explanation
+        });
+    }
+
+    document.getElementById("nextBtn")
+        .classList.remove("hidden");
+}
+
+document.getElementById("nextBtn")
+.addEventListener("click",()=>{
+
+    currentQuestion++;
+
+    if(currentQuestion < 7){
+
+        loadQuestion();
+
+    }else{
+
+        showResults();
+    }
+
+});
+
+function showResults(){
+
+    document.getElementById("game")
+        .classList.add("hidden");
+
+    document.getElementById("resultBox")
+        .classList.remove("hidden");
+
+    document.getElementById("scoreText")
+        .innerHTML =
+        `Você acertou <strong>${score}</strong> de 7 missões!`;
+
+    const errorList =
+        document.getElementById("errorList");
+
+    if(errors.length === 0){
+
+        errorList.innerHTML =
+        "🌟 Perfeito! Você dominou a floresta das redes!";
+
+    }else{
+
+        errorList.innerHTML =
+        "<h3>✨ Onde você errou:</h3><br>";
+
+        errors.forEach(err=>{
+
+            errorList.innerHTML += `
+                <p><strong>${err.question}</strong><br>
+                ${err.explanation}</p><br>
+            `;
+
+        });
+    }
+
+}
+
+function restartGame(){
+    startGame();
+}
+
+startGame();
+
+</script>
+
+</body>
+</html>
